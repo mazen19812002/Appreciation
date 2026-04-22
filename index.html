@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>شهادات التقدير - أوائل الطلاب</title>
+    <style>
+        /* إعدادات الخطوط والنظام - بدون مكتبات خارجية */
+        :root {
+            --primary: #004d40;
+            --secondary: #00acc1;
+            --accent: #d32f2f;
+            --gold: #FFD700;
+            --bg-gradient: linear-gradient(135deg, #e0f7fa 0%, #80deea 100%);
+            --btn-blue: linear-gradient(45deg, #0288d1, #26a69a, #0288d1);
+            --btn-gold: linear-gradient(45deg, #f57f17, #fbc02d, #f57f17);
+            --btn-green: linear-gradient(45deg, #2e7d32, #66bb6a, #2e7d32);
+            --btn-red: linear-gradient(45deg, #d32f2f, #f44336, #d32f2f);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Tahoma, Arial, sans-serif;
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            min-height: 100vh;
+            font-size: 18px;
+            color: #333;
+            overflow-x: hidden;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 30px; /* Space for footer */
+        }
+
+        /* تنسيقات شريط التحكم */
+        .controls-bar {
+            max-width: 1300px;
+            width: 95%;
+            margin: 20px auto;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px 25px;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            z-index: 100;
+            position: relative;
+        }
+
+        .main-title { font-weight: 700; font-size: 24px; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+
+        .student-select {
+            flex: 1;
+            min-width: 250px;
+            max-width: 500px;
+            padding: 12px 20px;
+            border-radius: 30px;
+            border: 2px solid var(--secondary);
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary);
+            cursor: pointer;
+            outline: none;
+            background: white;
+        }
+
+        .btns-group { display: flex; gap: 10px; flex-wrap: wrap; }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 30px;
+            border: none;
+            color: white;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            background-size: 200% 200%;
+            animation: gradientMove 4s ease infinite;
+        }
+
+        .btn:hover { transform: scale(1.05); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .btn-blue { background-image: var(--btn-blue); }
+        .btn-gold { background-image: var(--btn-gold); }
+        .btn-green { background-image: var(--btn-green); }
+        .btn-red { background-image: var(--btn-red); position: fixed; bottom: 40px; right: 20px; width: 60px; height: 60px; border-radius: 50%; justify-content: center; z-index: 200; font-size: 24px; }
+
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .zoom-controls { display: flex; gap: 5px; }
+        .btn-zoom { width: 40px; height: 40px; border-radius: 50%; background: var(--btn-blue); border: none; color: white; cursor: pointer; font-size: 20px; }
+
+        #zoom-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px 0 60px 0;
+            transform-origin: top center;
+            transition: transform 0.3s ease;
+        }
+
+        /* ------------------ تصميم الشهادة A4 ------------------ */
+        .cert-wrapper {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 15px;
+            background: linear-gradient(45deg, var(--gold), #FFA500, var(--secondary), var(--gold));
+            background-size: 300% 300%;
+            animation: goldShine 8s linear infinite;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        @keyframes goldShine {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .cert-inner {
+            background: white;
+            width: 100%;
+            height: 100%;
+            border-radius: 15px;
+            border: 4px dashed #b2ebf2;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            padding: 40px;
+            box-sizing: border-box;
+        }
+
+        .watermark {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%) rotate(-15deg);
+            font-size: 250px;
+            opacity: 0.04;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .cert-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            width: 100%;
+            margin-bottom: 20px;
+            z-index: 10;
+        }
+
+        .school-info { text-align: start; line-height: 1.6; color: var(--primary); font-weight: 700; }
+        .school-info h4 { font-size: 20px; }
+        .school-info h5 { font-size: 16px; color: var(--secondary); }
+
+        .avatar-box {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            border: 6px solid var(--secondary);
+            background: white;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .avatar-box img { width: 100%; height: 100%; object-fit: cover; }
+
+        .cert-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding-bottom: 100px;
+            z-index: 10;
+        }
+
+        .cert-title { font-size: 55px; font-weight: 900; color: var(--primary); margin-bottom: 30px; }
+        .student-label { font-size: 28px; color: #777; margin-bottom: 10px; }
+        .student-name {
+            font-size: 48px; font-weight: 900; color: var(--primary);
+            border-bottom: 4px solid var(--secondary);
+            padding: 0 20px 10px 20px; margin-bottom: 40px;
+            line-height: 1.2; word-wrap: break-word; max-width: 100%;
+        }
+
+        .badges-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-bottom: 40px; }
+        .badge {
+            background: #f0fdff; color: var(--primary); padding: 10px 25px;
+            border-radius: 40px; border: 2px solid var(--secondary);
+            font-weight: 700; font-size: 20px;
+        }
+
+        .reason-p { font-size: 32px; font-weight: 700; line-height: 1.6; color: #444; }
+        .final-mark { font-size: 60px; font-weight: 900; color: var(--accent); display: inline-block; margin: 10px 0; }
+
+        .cert-footer {
+            position: absolute; bottom: 40px; left: 40px; right: 40px;
+            display: flex; justify-content: space-between; align-items: flex-end;
+            padding-top: 20px; border-top: 2px dashed #eee; z-index: 10;
+        }
+
+        .signature-box { text-align: center; width: 48%; }
+        .sig-label { font-size: 22px; font-weight: 700; color: var(--primary); margin-bottom: 5px; }
+        .sig-name { font-size: 26px; font-weight: 900; color: var(--secondary); }
+
+        .anim-float { animation: float 3s ease-in-out infinite; display: inline-block; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+        /* ترويسة الغلاف */
+        .welcome-msg { font-size: 45px; font-weight: 900; color: var(--accent); margin: 20px 0; }
+        .welcome-sub { font-size: 30px; font-weight: 700; color: var(--primary); max-width: 80%; line-height: 1.5; }
+
+        /* Custom Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .toast.show { opacity: 1; }
+
+        /* Custom Footer */
+        .custom-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 6px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+            background: linear-gradient(90deg, #0288d1, #26a69a, #004d40, #0288d1);
+            background-size: 300% 100%;
+            animation: gradientScroll 5s linear infinite;
+            z-index: 9999;
+        }
+        @keyframes gradientScroll {
+            0% { background-position: 0% 0; }
+            100% { background-position: 100% 0; }
+        }
+
+        /* إعدادات الطباعة */
+        @media print {
+            @page { size: A4 portrait; margin: 0; }
+            body { background: white !important; padding-bottom: 0; }
+            .controls-bar, .btn-red, .custom-footer, .toast { display: none !important; }
+            #zoom-container { transform: none !important; padding: 0 !important; width: 100% !important; display: block !important; }
+            .cert-wrapper { 
+                width: 210mm !important; height: 296mm !important; 
+                margin: 0 auto !important; padding: 10mm !important; 
+                box-shadow: none !important; animation: none !important; border-radius: 0 !important;
+                -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;
+            }
+            .cert-inner { border-radius: 0 !important; height: 100% !important; }
+        }
+
+        /* ضبط الواجهة الإنجليزية لمنع التداخل */
+        [dir="ltr"] .school-info { text-align: left; }
+        [dir="ltr"] .cert-footer { flex-direction: row-reverse; }
+        [dir="ltr"] .reason-p { line-height: 1.4; font-size: 24px; }
+        [dir="ltr"] .sig-label { font-size: 16px; }
+        [dir="ltr"] .sig-name { font-size: 20px; }
+        [dir="ltr"] .student-name { font-size: 36px; }
+    </style>
+</head>
+<body>
+
+    <div id="top-controls" class="controls-bar">
+        <div class="main-title">
+            <span>🌟</span>
+            <span id="txt-main-title">لوحة شرف الأوائل</span>
+        </div>
+
+        <select id="studentSelect" class="student-select" onchange="renderCertificate()">
+        </select>
+
+        <div class="btns-group">
+            <button onclick="toggleLanguage()" class="btn btn-gold">
+                🌐 <span id="txt-btn-lang">English</span>
+            </button>
+
+            <!-- زر المشاركة المضاف حديثاً بجانب زر الطباعة -->
+            <button onclick="handleShare()" class="btn btn-green" title="مشاركة">
+                📤 <span id="txt-btn-share">مشاركة</span>
+            </button>
+
+            <button onclick="window.print()" class="btn btn-blue">
+                🖨️ <span id="txt-btn-print">طباعة PDF</span>
+            </button>
+
+            <div class="zoom-controls">
+                <button onclick="changeZoom(0.1)" class="btn-zoom">➕</button>
+                <button onclick="changeZoom(-0.1)" class="btn-zoom">➖</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="zoom-container">
+        <div id="certificate-display"></div>
+    </div>
+
+    <button onclick="toggleUI()" id="toggle-btn" class="btn btn-red" title="إخفاء/إظهار">👁️</button>
+    
+    <div id="toast" class="toast"></div>
+
+    <div class="custom-footer" id="custom-footer">
+        All rights are reserved to Dr. Mazen Badawy – Doctor of English Teaching & Testing
+    </div>
+
+    <script>
+        const i18n = {
+            ar: {
+                mainTitle: "لوحة شرف الأوائل",
+                btnLang: "English",
+                btnPrint: "طباعة PDF",
+                btnShare: "مشاركة",
+                selectPrompt: "-- اختر اسم الطالب لعرض الشهادة --",
+                welcomeTitle: "تهنئة قلبية لأوائل الطلاب 🌟",
+                welcomeMsg: "نبارك لطلابنا وطالباتنا المتفوقين الحاصلين على أعلى الدرجات في مادة اللغة الإنجليزية",
+                certTitle: 'شهادة شكر وتقدير 🏆',
+                studentLabelM: "الطالب:",
+                studentLabelF: "الطالبة:",
+                semesterBadge: 'الفصل الدراسي الثاني <bdi>2025-2026</bdi> 📅',
+                examBadge: 'امتحان اللغة الإنجليزية - مارس 2026 📝',
+                reasonText1M: "لتفوقه وحصوله على درجة متميزة",
+                reasonText1F: "لتفوقها وحصولها على درجة متميزة",
+                reasonText2: 'في مادة اللغة الإنجليزية ✨',
+                gov: "محافظة كفر الشيخ",
+                admin: "إدارة شرق كفر الشيخ التعليمية",
+                school: "مدرسة الشهيد نجيب محي الشناوي",
+                stage: "للتعليم الأساسي بدقميرة",
+                teacherLabel: "معلم المادة",
+                teacherName: 'د. مازن فوزي بدوي 🎓',
+                principalLabel: "مدير المدرسة",
+                principalName: "ا. ابراهيم عبد المنعم هلال",
+                shareSuccess: "تم نسخ النص! يمكنك الآن لصقه ومشاركته.",
+                shareError: "عذراً، متصفحك لا يدعم المشاركة المباشرة."
+            },
+            en: {
+                mainTitle: "Top Students Honor Board",
+                btnLang: "عربي",
+                btnPrint: "Print PDF",
+                btnShare: "Share",
+                selectPrompt: "-- Select Student Name --",
+                welcomeTitle: "Warm Congratulations! 🌟",
+                welcomeMsg: "Celebrating our brilliant students who achieved top marks in the English Language subject",
+                certTitle: 'Certificate of Appreciation 🏆',
+                studentLabelM: "Student:",
+                studentLabelF: "Student:",
+                semesterBadge: 'Second Semester <bdi>2025-2026</bdi> 📅',
+                examBadge: 'March 2026 English Exam 📝',
+                reasonText1M: "For his excellence and achieving an outstanding mark",
+                reasonText1F: "For her excellence and achieving an outstanding mark",
+                reasonText2: 'in the English Language subject ✨',
+                gov: "Kafr El-Sheikh Governorate",
+                admin: "East Kafr El-Sheikh Educational Administration",
+                school: "El-Shaheed Naguib Mohie El-Shennawy School",
+                stage: "For Basic Education in Daqmeira",
+                teacherLabel: "Subject Teacher",
+                teacherName: 'Dr. Mazen Fawzy Badawy 🎓',
+                principalLabel: "School Principal",
+                principalName: "Mr. Ibrahim Abdel Moneim Helal",
+                shareSuccess: "Text copied! You can now paste and share.",
+                shareError: "Sorry, your browser doesn't support direct sharing."
+            }
+        };
+
+        const students = [
+            // Class 1-2 (Hidden as requested, but kept in code)
+            { name: "رهف رضا جوهير محمد ابراهيم مرسي", enName: "Rahaf Reda Goweher Mohamed Ibrahim Morsi", gender: 'F', class: "فصل 1-2", enClass: "Class 1-2", img: "01.png", score: 15, hidden: true },
+            { name: "رودينا مجدي السيد بدير علي جاد الحق", enName: "Rodina Magdy El-Sayed Bedair Ali Gad El-Haq", gender: 'F', class: "فصل 1-2", enClass: "Class 1-2", img: "02.png", score: 15, hidden: true },
+            { name: "ريماس أحمد حامد حشيش", enName: "Remas Ahmed Hamed Hasheesh", gender: 'F', class: "فصل 1-2", enClass: "Class 1-2", img: "03.png", score: 15, hidden: true },
+            { name: "سلمى اسامه عبدالله فرج", enName: "Salma Osama Abdallah Farag", gender: 'F', class: "فصل 1-2", enClass: "Class 1-2", img: "04.png", score: 15, hidden: true },
+            { name: "سما اشرف رضا محمد غازي", enName: "Sama Ashraf Reda Mohamed Ghazy", gender: 'F', class: "فصل 1-2", enClass: "Class 1-2", img: "05.png", score: 15, hidden: true },
+            { name: "سهير ابراهيم الزكير ابراهيم الزكير", enName: "Sohair Ibrahim El-Zakir Ibrahim El-Zokair", gender: 'F', class: "فصل 1-2", enClass: "Class 1-2", img: "06.png", score: 15, hidden: true },
+            { name: "شهد ياسر عبد المتجلي احمد", enName: "Shahd Yasser Abdel-Motagally Ahmed", gender: 'F', class: "فصل 1-2", enClass: "Class 1-2", img: "07.png", score: 15, hidden: true },
+            { name: "مريم ابراهيم المعداوى عبد الحميد", enName: "Mariam Ibrahim El-Maadawy Abdel-Hamid", gender: 'F', class: "فصل 1-2", enClass: "Class 1-2", img: "08.png", score: 15, hidden: true },
+            
+            // Class 1-3 (Existing - Score 15)
+            { name: "محمد عبد القادر ابراهيم محمد ابراهيم", enName: "Mohamed Abdel-Qader Ibrahim Mohamed Ibrahim", gender: 'M', class: "فصل 1-3", enClass: "Class 1-3", img: "01.png", score: 15 },
+            { name: "محمد ماهر ابراهيم عبد السلام", enName: "Mohamed Maher Ibrahim Abdel-Salam", gender: 'M', class: "فصل 1-3", enClass: "Class 1-3", img: "02.png", score: 15 },
+            { name: "مدحت اشرف مدحت بسيوني محمد عبدالله", enName: "Medhat Ashraf Medhat Basyouni Mohamed Abdallah", gender: 'M', class: "فصل 1-3", enClass: "Class 1-3", img: "03.png", score: 15 },
+            { name: "مريم احمد محمد السيد على سليم", enName: "Mariam Ahmed Mohamed El-Sayed Ali Selim", gender: 'F', class: "فصل 1-3", enClass: "Class 1-3", img: "04.png", score: 15 },
+            { name: "ملك حماده حمدي محمد محمد عبد الخير", enName: "Malak Hamada Hamdy Mohamed Mohamed Abdel-Kheir", gender: 'F', class: "فصل 1-3", enClass: "Class 1-3", img: "05.png", score: 15 },
+            { name: "ملك رضا غريب العزب عبد المجيد", enName: "Malak Reda Gharib El-Azab Abdel-Meguid", gender: 'F', class: "فصل 1-3", enClass: "Class 1-3", img: "06.png", score: 15 },
+            { name: "منة الله نشأت السيد محمد", enName: "Mennatullah Nashaat El-Sayed Mohamed", gender: 'F', class: "فصل 1-3", enClass: "Class 1-3", img: "07.png", score: 15 },
+            { name: "مي محمد مسعد علي شوشه", enName: "Mai Mohamed Mesaed Ali Shousha", gender: 'F', class: "فصل 1-3", enClass: "Class 1-3", img: "08.png", score: 15 },
+            { name: "ميرنا عبد القادر محي الدين امام الشناوي", enName: "Mirna Abdel-Qader Mohie El-Din Imam El-Shennawy", gender: 'F', class: "فصل 1-3", enClass: "Class 1-3", img: "09.png", score: 15 },
+            { name: "هاجر ابراهيم عبدالله ابراهيم شحاته", enName: "Hagar Ibrahim Abdallah Ibrahim Shehata", gender: 'F', class: "فصل 1-3", enClass: "Class 1-3", img: "10.png", score: 15 },
+            { name: "ياسمين البسيوني حامد البسيوني", enName: "Yasmine El-Basyouni Hamed El-Basyouni", gender: 'F', class: "فصل 1-3", enClass: "Class 1-3", img: "11.png", score: 15 },
+            { name: "مريم ياسين عبد الباری ياسین امام", enName: "Mariam Yassin Abdel-Bary Yassin Imam", gender: 'F', class: "فصل 1-3", enClass: "Class 1-3", img: "12.png", score: 15 },
+
+            // New Students added from the list (Score 14)
+            { name: "مصطفى محمد مصطفى محمد عبده", enName: "Mostafa Mohamed Mostafa Mohamed Abdo", gender: 'M', class: "فصل 1-3", enClass: "Class 1-3", img: "13.png", score: 14 },
+            { name: "مصطفى نعيم السعيد مصطفى السيد هلال", enName: "Mostafa Naeem El-Saeed Mostafa El-Sayed Helal", gender: 'M', class: "فصل 1-3", enClass: "Class 1-3", img: "14.png", score: 14 },
+            { name: "يوسف محمد كرم موسي بدير", enName: "Youssef Mohamed Karam Moussa Bedair", gender: 'M', class: "فصل 1-3", enClass: "Class 1-3", img: "15.png", score: 14 },
+            { name: "يوسف محمد محمد ابو شعيشع", enName: "Youssef Mohamed Mohamed Abou Shaeisha", gender: 'M', class: "فصل 1-3", enClass: "Class 1-3", img: "16.png", score: 14 },
+            { name: "يوسف ناصر احمد يوسف شلبي", enName: "Youssef Nasser Ahmed Youssef Shalaby", gender: 'M', class: "فصل 1-3", enClass: "Class 1-3", img: "17.png", score: 14 },
+            { name: "ملك محمد عبد المنعم يوسف", enName: "Malak Mohamed Abdel-Moneim Youssef", gender: 'F', class: "فصل 1-3", enClass: "Class 1-3", img: "18.png", score: 14 },
+            { name: "مي غريب رمضان رمضان محمد القديم", enName: "Mai Gharib Ramadan Ramadan Mohamed El-Kadeem", gender: 'F', class: "فصل 1-3", enClass: "Class 1-3", img: "19.png", score: 14 },
+            { name: "ندا شاكر محمد طه محمد", enName: "Nada Shaker Mohamed Taha Mohamed", gender: 'F', class: "فصل 1-3", enClass: "Class 1-3", img: "20.png", score: 14 },
+            { name: "ندا محمد رشدي السعيد", enName: "Nada Mohamed Roshdy El-Saeed", gender: 'F', class: "فصل 1-3", enClass: "Class 1-3", img: "21.png", score: 14 },
+            { name: "نوران ايمن ممدوح موسى", enName: "Nouran Ayman Mamdouh Moussa", gender: 'F', class: "فصل 1-3", enClass: "Class 1-3", img: "22.png", score: 14 },
+            { name: "همت قدرى حمدي عبد الخالق بسيوني", enName: "Hemat Qadry Hamdy Abdel-Khaleq Basyouni", gender: 'F', class: "فصل 1-3", enClass: "Class 1-3", img: "23.png", score: 14 },
+            { name: "وفاء الشناوي عبد الوارث عبدالله احمد", enName: "Wafaa El-Shennawy Abdel-Wareth Abdallah Ahmed", gender: 'F', class: "فصل 1-3", enClass: "Class 1-3", img: "24.png", score: 14 },
+            { name: "ملك اسامة مصطفى عبد القادر", enName: "Malak Osama Mostafa Abdel-Qader", gender: 'F', class: "فصل 1-3", enClass: "Class 1-3", img: "25.png", score: 14 }
+        ];
+
+        let currentLang = 'ar';
+        let currentZoom = 1;
+
+        window.handleImgError = function(img) {
+            const trophySVG = `<svg width="100" height="100" viewBox="0 0 24 24" fill="var(--gold)" xmlns="http://www.w3.org/2000/svg"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6V9Zm12-5h1.5a2.5 2.5 0 0 1 0 5H18V4ZM18 2H6v7a6 6 0 0 0 12 0V2ZM4 22h16v-2H4v2Zm6-4.79v1.29a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-1.29c1.78-.36 3-1.93 3-3.71V11H7v2.5c0 1.78 1.22 3.35 3 3.71Z"/></svg>`;
+            img.parentElement.innerHTML = `<div class="anim-float">${trophySVG}</div>`;
+        };
+
+        function populateDropdown() {
+            const select = document.getElementById('studentSelect');
+            const currentIndex = select.value;
+            select.innerHTML = `<option value="">${i18n[currentLang].selectPrompt}</option>`;
+            students.forEach((s, index) => {
+                if (s.hidden) return; // إخفاء الطلاب المحددين من القائمة المنسدلة
+                const opt = document.createElement('option');
+                opt.value = index;
+                opt.textContent = `${currentLang === 'ar' ? s.name : s.enName} - ${currentLang === 'ar' ? s.class : s.enClass} (${s.score}/15)`;
+                select.appendChild(opt);
+            });
+            if (currentIndex !== "") select.value = currentIndex;
+        }
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'ar' ? 'en' : 'ar';
+            document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+            document.documentElement.lang = currentLang;
+            document.getElementById('txt-main-title').textContent = i18n[currentLang].mainTitle;
+            document.getElementById('txt-btn-lang').textContent = i18n[currentLang].btnLang;
+            document.getElementById('txt-btn-print').textContent = i18n[currentLang].btnPrint;
+            document.getElementById('txt-btn-share').textContent = i18n[currentLang].btnShare;
+            populateDropdown();
+            renderCertificate();
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        async function handleShare() {
+            const index = document.getElementById('studentSelect').value;
+            const t = i18n[currentLang];
+            let shareText = "";
+            
+            if (index === "") {
+                shareText = `${t.welcomeTitle}\n${t.welcomeMsg}`;
+            } else {
+                const s = students[index];
+                const name = currentLang === 'ar' ? s.name : s.enName;
+                const reason = s.gender === 'M' ? t.reasonText1M : t.reasonText1F;
+                shareText = `${t.certTitle}\n${name}\n${reason} ${s.score}/15 ${t.reasonText2}`;
+            }
+
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: t.mainTitle,
+                        text: shareText
+                    });
+                } catch (err) {
+                    console.log("Share skipped", err);
+                }
+            } else {
+                // Fallback: نسخ النص للحافظة واستخدام Toast بدلاً من Alert
+                const tempInput = document.createElement("textarea");
+                tempInput.value = shareText;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                document.execCommand("copy");
+                document.body.removeChild(tempInput);
+                showToast(t.shareSuccess);
+            }
+        }
+
+        function renderCertificate() {
+            const index = document.getElementById('studentSelect').value;
+            const t = i18n[currentLang];
+            const display = document.getElementById('certificate-display');
+
+            if (index === "") {
+                const trophySVG = `<svg width="180" height="180" viewBox="0 0 24 24" fill="var(--gold)" xmlns="http://www.w3.org/2000/svg"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6V9Zm12-5h1.5a2.5 2.5 0 0 1 0 5H18V4ZM18 2H6v7a6 6 0 0 0 12 0V2ZM4 22h16v-2H4v2Zm6-4.79v1.29a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-1.29c1.78-.36 3-1.93 3-3.71V11H7v2.5c0 1.78 1.22 3.35 3 3.71Z"/></svg>`;
+                display.innerHTML = `
+                    <div class="cert-wrapper">
+                        <div class="cert-inner">
+                            <div class="watermark">🎓</div>
+                            <div class="cert-header">
+                                <div class="school-info">
+                                    <h4>${t.gov}</h4><h4>${t.admin}</h4><h4>${t.school}</h4><h5>${t.stage}</h5>
+                                </div>
+                            </div>
+                            <div class="cert-body">
+                                <div class="anim-float">${trophySVG}</div>
+                                <h2 class="welcome-msg">${t.welcomeTitle}</h2>
+                                <p class="welcome-sub">${t.welcomeMsg}</p>
+                                <div class="badges-row" style="margin-top:40px;">
+                                    <div class="badge">${t.semesterBadge}</div>
+                                    <div class="badge">${t.examBadge}</div>
+                                </div>
+                            </div>
+                            <div class="cert-footer">
+                                <div class="signature-box">
+                                    <p class="sig-label">${t.teacherLabel}</p>
+                                    <p class="sig-name">${t.teacherName}</p>
+                                </div>
+                                <div class="signature-box">
+                                    <p class="sig-label">${t.principalLabel}</p>
+                                    <p class="sig-name">${t.principalName}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            const s = students[index];
+            const name = currentLang === 'ar' ? s.name : s.enName;
+            const cls = currentLang === 'ar' ? s.class : s.enClass;
+            const label = s.gender === 'M' ? t.studentLabelM : t.studentLabelF;
+            const reason1 = s.gender === 'M' ? t.reasonText1M : t.reasonText1F;
+
+            display.innerHTML = `
+                <div class="cert-wrapper">
+                    <div class="cert-inner">
+                        <div class="watermark">🎓</div>
+                        <div class="cert-header">
+                            <div class="school-info">
+                                <h4>${t.gov}</h4><h4>${t.admin}</h4><h4>${t.school}</h4><h5>${t.stage}</h5>
+                            </div>
+                            <div class="avatar-box">
+                                <img src="${s.img}" onerror="handleImgError(this)">
+                            </div>
+                        </div>
+                        <div class="cert-body">
+                            <h2 class="cert-title">${t.certTitle}</h2>
+                            <h3 class="student-label">${label}</h3>
+                            <h1 class="student-name">${name}</h1>
+                            <div class="badges-row">
+                                <div class="badge">${cls}</div>
+                                <div class="badge">${t.semesterBadge}</div>
+                                <div class="badge">${t.examBadge}</div>
+                            </div>
+                            <div class="reason-p">
+                                ${reason1}<br><span class="final-mark"><bdi>${s.score}/15</bdi></span><br>${t.reasonText2}
+                            </div>
+                        </div>
+                        <div class="cert-footer">
+                            <div class="signature-box">
+                                <p class="sig-label">${t.teacherLabel}</p>
+                                <p class="sig-name">${t.teacherName}</p>
+                            </div>
+                            <div class="signature-box">
+                                <p class="sig-label">${t.principalLabel}</p>
+                                <p class="sig-name">${t.principalName}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function changeZoom(amount) {
+            currentZoom += amount;
+            if (currentZoom < 0.4) currentZoom = 0.4;
+            if (currentZoom > 1.5) currentZoom = 1.5;
+            document.getElementById('zoom-container').style.transform = `scale(${currentZoom})`;
+        }
+
+        let uiVisible = true;
+        function toggleUI() {
+            uiVisible = !uiVisible;
+            document.getElementById('top-controls').style.display = uiVisible ? 'flex' : 'none';
+            document.getElementById('toggle-btn').innerHTML = uiVisible ? '👁️' : '🙈';
+            document.getElementById('custom-footer').style.display = uiVisible ? 'block' : 'none';
+        }
+
+        window.onload = () => {
+            populateDropdown();
+            renderCertificate();
+        };
+    </script>
+</body>
+</html>
