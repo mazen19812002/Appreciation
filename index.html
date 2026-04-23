@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>شهادات التقدير - أوائل الطلاب</title>
+    <!-- تضمين مكتبة html2canvas لتحويل الشهادة إلى صورة -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         /* إعدادات الخطوط والنظام - بدون مكتبات خارجية */
         :root {
@@ -327,7 +329,7 @@
                 🌐 <span id="txt-btn-lang">English</span>
             </button>
 
-            <!-- زر المشاركة المضاف حديثاً بجانب زر الطباعة -->
+            <!-- زر المشاركة -->
             <button onclick="handleShare()" class="btn btn-green" title="مشاركة">
                 📤 <span id="txt-btn-share">مشاركة</span>
             </button>
@@ -381,9 +383,11 @@
                 teacherName: 'د. مازن فوزي بدوي 🎓',
                 principalLabel: "مدير المدرسة",
                 principalName: "ا. ابراهيم عبد المنعم هلال",
-                shareSuccess: "تم نسخ النص! يمكنك الآن لصقه ومشاركته.",
-                shareError: "عذراً، متصفحك لا يدعم المشاركة المباشرة.",
-                disclaimer: "الصفحة لتكريم الطلاب المتميزين والطالب غير ملزم بطباعة الشهادة"
+                shareSuccess: "تمت المشاركة بنجاح!",
+                shareFallback: "تم تنزيل الصورة! يمكنك الآن مشاركتها على أي منصة.",
+                shareError: "عذراً، حدث خطأ أثناء تجهيز الصورة.",
+                shareLoading: "جاري تجهيز الصورة للمشاركة...",
+                disclaimer: "الشهادة لتكريم الطلاب المتميزين والطالب غير ملزم بطباعة الشهادة"
             },
             en: {
                 mainTitle: "Top Students Honor Board",
@@ -409,8 +413,10 @@
                 teacherName: 'Dr. Mazen Fawzy Badawy 🎓',
                 principalLabel: "School Principal",
                 principalName: "Mr. Ibrahim Abdel Moneim Helal",
-                shareSuccess: "Text copied! You can now paste and share.",
-                shareError: "Sorry, your browser doesn't support direct sharing.",
+                shareSuccess: "Shared successfully!",
+                shareFallback: "Image downloaded! You can now upload and share it anywhere.",
+                shareError: "Sorry, an error occurred while preparing the image.",
+                shareLoading: "Preparing image for sharing...",
                 disclaimer: "This certificate honors outstanding students, and printing it is optional."
             }
         };
@@ -469,7 +475,7 @@
             const currentIndex = select.value;
             select.innerHTML = `<option value="">${i18n[currentLang].selectPrompt}</option>`;
             students.forEach((s, index) => {
-                if (s.hidden) return; // إخفاء الطلاب المحددين من القائمة المنسدلة
+                if (s.hidden) return; 
                 const opt = document.createElement('option');
                 opt.value = index;
                 const scoreDisplay = currentLang === 'ar' ? `15 / ${s.score}` : `${s.score} / 15`;
@@ -504,36 +510,66 @@
         async function handleShare() {
             const index = document.getElementById('studentSelect').value;
             const t = i18n[currentLang];
-            let shareText = "";
             
-            if (index === "") {
-                shareText = `${t.welcomeTitle}\n${t.welcomeMsg}`;
-            } else {
-                const s = students[index];
-                const name = currentLang === 'ar' ? s.name : s.enName;
-                const reason = s.gender === 'M' ? t.reasonText1M : t.reasonText1F;
-                const scoreShare = currentLang === 'ar' ? `15 / ${s.score}` : `${s.score} / 15`;
-                shareText = `${t.certTitle}\n${name}\n${reason} ${scoreShare} ${t.reasonText2}`;
-            }
+            // إظهار إشعار مؤقت للتحميل
+            showToast(t.shareLoading);
 
-            if (navigator.share) {
-                try {
-                    await navigator.share({
-                        title: t.mainTitle,
-                        text: shareText
-                    });
-                } catch (err) {
-                    console.log("Share skipped", err);
-                }
-            } else {
-                // Fallback: نسخ النص للحافظة واستخدام Toast بدلاً من Alert
-                const tempInput = document.createElement("textarea");
-                tempInput.value = shareText;
-                document.body.appendChild(tempInput);
-                tempInput.select();
-                document.execCommand("copy");
-                document.body.removeChild(tempInput);
-                showToast(t.shareSuccess);
+            // نلتقط عنصر الشهادة
+            const certElement = document.querySelector('.cert-wrapper');
+            
+            try {
+                // ضبط التكبير مؤقتاً للحصول على دقة مثالية
+                const zoomContainer = document.getElementById('zoom-container');
+                const originalTransform = zoomContainer.style.transform;
+                zoomContainer.style.transform = 'scale(1)';
+
+                // تحويل العنصر إلى كائن Canvas
+                const canvas = await html2canvas(certElement, {
+                    scale: 2, // دقة عالية
+                    useCORS: true, // السماح بالصور المحلية
+                    backgroundColor: null
+                });
+
+                // استعادة حجم الشاشة الطبيعي
+                zoomContainer.style.transform = originalTransform;
+
+                canvas.toBlob(async (blob) => {
+                    if (!blob) {
+                        showToast(t.shareError);
+                        return;
+                    }
+
+                    // تجهيز اسم الملف
+                    const fileName = index === "" ? "Honor_Board.png" : `Certificate_${students[index].enName.replace(/\s+/g, '_')}.png`;
+                    const file = new File([blob], fileName, { type: 'image/png' });
+
+                    // التحقق مما إذا كان المتصفح يدعم مشاركة الملفات (للأجهزة المحمولة ومتصفحات حديثة)
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        try {
+                            const shareText = index === "" ? t.welcomeMsg : `${t.certTitle}\n${currentLang === 'ar' ? students[index].name : students[index].enName}`;
+                            
+                            await navigator.share({
+                                title: t.mainTitle,
+                                text: shareText,
+                                files: [file]
+                            });
+                            showToast(t.shareSuccess);
+                        } catch (err) {
+                            console.log("Share skipped or cancelled", err);
+                        }
+                    } else {
+                        // Fallback: المتصفح لا يدعم مشاركة الملفات مباشرة، نقوم بتنزيل الصورة
+                        const link = document.createElement('a');
+                        link.download = fileName;
+                        link.href = canvas.toDataURL('image/png');
+                        link.click();
+                        showToast(t.shareFallback);
+                    }
+                }, 'image/png');
+
+            } catch (error) {
+                console.error("Error generating image:", error);
+                showToast(t.shareError);
             }
         }
 
