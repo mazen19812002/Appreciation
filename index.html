@@ -166,9 +166,16 @@
             z-index: 10;
         }
 
-        .school-info { text-align: start; line-height: 1.6; color: var(--primary); font-weight: 700; }
-        .school-info h4 { font-size: 20px; }
-        .school-info h5 { font-size: 16px; color: var(--secondary); }
+        .school-info { 
+            text-align: center; 
+            line-height: 1.6; 
+            color: var(--primary); 
+            font-weight: 700; 
+            font-size: 20px; 
+            display: flex;
+            flex-direction: column;
+        }
+        .school-info div { margin-bottom: 2px; }
 
         .avatar-box {
             width: 140px;
@@ -249,6 +256,29 @@
             position: relative;
         }
 
+        /* نافذة المشاركة (Modal) */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85); z-index: 100000;
+            display: flex; justify-content: center; align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background: white; padding: 25px; border-radius: 20px;
+            max-width: 90%; max-height: 95vh; overflow-y: auto;
+            text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .modal-image-container {
+            width: 100%; max-width: 400px; /* حجم مناسب للمعاينة */
+            margin: 15px 0; border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            overflow: hidden; border: 2px solid var(--secondary);
+        }
+        .modal-image-container img {
+            width: 100%; height: auto; display: block;
+        }
+
         /* Custom Toast Notification */
         .toast {
             position: fixed;
@@ -259,7 +289,7 @@
             color: white;
             padding: 12px 24px;
             border-radius: 30px;
-            z-index: 1000;
+            z-index: 100001; /* فوق كل شيء */
             opacity: 0;
             transition: opacity 0.3s;
             pointer-events: none;
@@ -293,7 +323,7 @@
         @media print {
             @page { size: A4 portrait; margin: 0; }
             body { background: white !important; padding-bottom: 0; }
-            .controls-bar, .btn-red, .custom-footer, .toast, .disclaimer-text { display: none !important; }
+            .controls-bar, .btn-red, .custom-footer, .toast, .disclaimer-text, .modal-overlay { display: none !important; }
             #zoom-container { transform: none !important; padding: 0 !important; width: 100% !important; display: block !important; }
             .cert-wrapper { 
                 width: 210mm !important; height: 296mm !important; 
@@ -305,7 +335,6 @@
         }
 
         /* ضبط الواجهة الإنجليزية لمنع التداخل */
-        [dir="ltr"] .school-info { text-align: left; }
         [dir="ltr"] .cert-footer { flex-direction: row-reverse; }
         [dir="ltr"] .reason-p { line-height: 1.4; font-size: 24px; }
         [dir="ltr"] .sig-label { font-size: 16px; }
@@ -329,9 +358,9 @@
                 🌐 <span id="txt-btn-lang">English</span>
             </button>
 
-            <!-- زر المشاركة -->
-            <button onclick="handleShare()" class="btn btn-green" title="مشاركة">
-                📤 <span id="txt-btn-share">مشاركة</span>
+            <!-- زر المشاركة يولد الصورة ويفتح النافذة -->
+            <button onclick="generateAndShowShareModal()" class="btn btn-green" title="مشاركة كصورة">
+                📸 <span id="txt-btn-share">مشاركة</span>
             </button>
 
             <button onclick="window.print()" class="btn btn-blue">
@@ -356,6 +385,28 @@
     <div class="custom-footer" id="custom-footer">
         All rights are reserved to Dr. Mazen Badawy – Doctor of English Teaching & Testing
     </div>
+
+    <!-- نافذة المشاركة المنبثقة -->
+    <div id="share-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <h2 id="modal-title-text" style="color: var(--primary); margin-bottom: 10px;">الصورة جاهزة!</h2>
+            <p id="modal-desc-text" style="font-size: 16px; color: #555; max-width: 400px; margin-bottom: 10px;">
+                يمكنك الضغط مطولاً على الصورة لحفظها أو مشاركتها مباشرة، أو استخدام الأزرار أدناه.
+            </p>
+            
+            <div class="modal-image-container">
+                <img id="modal-final-image" src="" alt="Certificate Image">
+            </div>
+
+            <div class="btns-group" style="justify-content: center; gap: 10px; margin-top: 15px;">
+                <button id="btn-modal-share" class="btn btn-green">📤 مشاركة</button>
+                <button id="btn-modal-download" class="btn btn-blue">⬇️ تحميل</button>
+                <button onclick="closeShareModal()" id="btn-modal-close" class="btn btn-red" style="position: static; width: auto; height: auto; border-radius: 30px; font-size: 16px;">❌ إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
 
     <script>
         const i18n = {
@@ -384,10 +435,14 @@
                 principalLabel: "مدير المدرسة",
                 principalName: "ا. ابراهيم عبد المنعم هلال",
                 shareSuccess: "تمت المشاركة بنجاح!",
-                shareFallback: "تم تنزيل الصورة! يمكنك الآن مشاركتها على أي منصة.",
-                shareError: "عذراً، حدث خطأ أثناء تجهيز الصورة.",
-                shareLoading: "جاري تجهيز الصورة للمشاركة...",
-                disclaimer: "الشهادة لتكريم الطلاب المتميزين والطالب غير ملزم بطباعة الشهادة"
+                shareError: "عذراً، حدث خطأ أثناء التجهيز.",
+                shareLoading: "جاري التقاط صورة عالية الدقة... ⏳",
+                disclaimer: "الشهادة لتكريم الطلاب المتميزين والطالب غير ملزم بطباعة الشهادة",
+                modalTitle: "الصورة جاهزة بنجاح!",
+                modalDesc: "اضغط مطولاً (Long Press) على الصورة لحفظها أو مشاركتها بأمان، أو استخدم الأزرار.",
+                btnDownload: "تحميل الصورة",
+                btnClose: "إغلاق",
+                btnModalShare: "مشاركة عبر تطبيق"
             },
             en: {
                 mainTitle: "Top Students Honor Board",
@@ -414,10 +469,14 @@
                 principalLabel: "School Principal",
                 principalName: "Mr. Ibrahim Abdel Moneim Helal",
                 shareSuccess: "Shared successfully!",
-                shareFallback: "Image downloaded! You can now upload and share it anywhere.",
-                shareError: "Sorry, an error occurred while preparing the image.",
-                shareLoading: "Preparing image for sharing...",
-                disclaimer: "This certificate honors outstanding students, and printing it is optional."
+                shareError: "Sorry, an error occurred.",
+                shareLoading: "Generating high-res image... ⏳",
+                disclaimer: "This certificate honors outstanding students, and printing it is optional.",
+                modalTitle: "Image is Ready!",
+                modalDesc: "Long press on the image to save/share it securely, or use the buttons.",
+                btnDownload: "Download Image",
+                btnClose: "Close",
+                btnModalShare: "Share via App"
             }
         };
 
@@ -494,6 +553,14 @@
             document.getElementById('txt-btn-print').textContent = i18n[currentLang].btnPrint;
             document.getElementById('txt-btn-share').textContent = i18n[currentLang].btnShare;
             document.getElementById('disclaimer-text').textContent = i18n[currentLang].disclaimer;
+            
+            // تحديث نصوص النافذة
+            document.getElementById('modal-title-text').textContent = i18n[currentLang].modalTitle;
+            document.getElementById('modal-desc-text').textContent = i18n[currentLang].modalDesc;
+            document.getElementById('btn-modal-download').innerHTML = `⬇️ ${i18n[currentLang].btnDownload}`;
+            document.getElementById('btn-modal-close').innerHTML = `❌ ${i18n[currentLang].btnClose}`;
+            document.getElementById('btn-modal-share').innerHTML = `📤 ${i18n[currentLang].btnModalShare}`;
+
             populateDropdown();
             renderCertificate();
         }
@@ -507,68 +574,101 @@
             }, 3000);
         }
 
-        async function handleShare() {
+        // إغلاق نافذة المشاركة
+        function closeShareModal() {
+            document.getElementById('share-modal').style.display = 'none';
+        }
+
+        // الالتقاط الذكي والمضمون للشهادة بدون تشوه أو أخطاء قص
+        async function generateAndShowShareModal() {
             const index = document.getElementById('studentSelect').value;
             const t = i18n[currentLang];
             
-            // إظهار إشعار مؤقت للتحميل
+            const originalCert = document.querySelector('.cert-wrapper');
+            if (!originalCert) return;
+
             showToast(t.shareLoading);
 
-            // نلتقط عنصر الشهادة
-            const certElement = document.querySelector('.cert-wrapper');
-            
             try {
-                // ضبط التكبير مؤقتاً للحصول على دقة مثالية
-                const zoomContainer = document.getElementById('zoom-container');
-                const originalTransform = zoomContainer.style.transform;
-                zoomContainer.style.transform = 'scale(1)';
+                // 1. إنشاء نسخة "خفية" من الشهادة للالتقاط الآمن تماماً
+                const clone = originalCert.cloneNode(true);
+                
+                // 2. وضعها خارج الشاشة بحجم ثابت لمنع تأثير تكبير المتصفح (Zoom)
+                const printContainer = document.createElement('div');
+                printContainer.style.position = 'fixed';
+                printContainer.style.top = '-9999px';
+                printContainer.style.left = '-9999px';
+                
+                // إزالة أي انيميشن أو مؤثرات تعيق التقاط الصورة
+                clone.style.transform = 'none';
+                clone.style.animation = 'none';
+                clone.style.boxShadow = 'none';
+                clone.style.margin = '0';
+                
+                printContainer.appendChild(clone);
+                document.body.appendChild(printContainer);
 
-                // تحويل العنصر إلى كائن Canvas
-                const canvas = await html2canvas(certElement, {
+                // إعطاء المتصفح لحظة قصيرة لمعالجة النسخة
+                await new Promise(r => setTimeout(r, 100));
+
+                // 3. التقاط الصورة بجودة مضاعفة
+                const canvas = await html2canvas(clone, {
                     scale: 2, // دقة عالية
-                    useCORS: true, // السماح بالصور المحلية
-                    backgroundColor: null
+                    useCORS: true, 
+                    backgroundColor: '#ffffff',
+                    logging: false
                 });
 
-                // استعادة حجم الشاشة الطبيعي
-                zoomContainer.style.transform = originalTransform;
+                // 4. حذف النسخة الخفية بعد الانتهاء
+                document.body.removeChild(printContainer);
 
-                canvas.toBlob(async (blob) => {
-                    if (!blob) {
-                        showToast(t.shareError);
-                        return;
-                    }
+                // تحويل الصورة لرابط بيانات (Data URL)
+                const dataUrl = canvas.toDataURL('image/png');
 
-                    // تجهيز اسم الملف
-                    const fileName = index === "" ? "Honor_Board.png" : `Certificate_${students[index].enName.replace(/\s+/g, '_')}.png`;
+                // 5. عرض الصورة في النافذة المنبثقة
+                document.getElementById('modal-final-image').src = dataUrl;
+                document.getElementById('share-modal').style.display = 'flex';
+
+                // تجهيز بيانات الملف (للتنزيل أو المشاركة)
+                const safeName = index === "" ? "Honor_Board" : students[index].enName.replace(/[^a-zA-Z0-9]/g, '_');
+                const fileName = `Certificate_${safeName}.png`;
+
+                // تجهيز زر التحميل (Download)
+                document.getElementById('btn-modal-download').onclick = () => {
+                    const a = document.createElement('a');
+                    a.href = dataUrl;
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                };
+
+                // تجهيز زر المشاركة (Share) إذا كان المتصفح يدعمه
+                const shareBtn = document.getElementById('btn-modal-share');
+                canvas.toBlob((blob) => {
+                    if(!blob) return;
                     const file = new File([blob], fileName, { type: 'image/png' });
-
-                    // التحقق مما إذا كان المتصفح يدعم مشاركة الملفات (للأجهزة المحمولة ومتصفحات حديثة)
+                    
                     if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                        try {
-                            const shareText = index === "" ? t.welcomeMsg : `${t.certTitle}\n${currentLang === 'ar' ? students[index].name : students[index].enName}`;
-                            
-                            await navigator.share({
-                                title: t.mainTitle,
-                                text: shareText,
-                                files: [file]
-                            });
-                            showToast(t.shareSuccess);
-                        } catch (err) {
-                            console.log("Share skipped or cancelled", err);
-                        }
+                        shareBtn.style.display = 'inline-flex';
+                        shareBtn.onclick = async () => {
+                            try {
+                                const shareText = index === "" ? t.welcomeMsg : `${t.certTitle}\n${currentLang === 'ar' ? students[index].name : students[index].enName}`;
+                                await navigator.share({
+                                    title: t.mainTitle,
+                                    text: shareText,
+                                    files: [file]
+                                });
+                            } catch(e) { console.log(e); }
+                        };
                     } else {
-                        // Fallback: المتصفح لا يدعم مشاركة الملفات مباشرة، نقوم بتنزيل الصورة
-                        const link = document.createElement('a');
-                        link.download = fileName;
-                        link.href = canvas.toDataURL('image/png');
-                        link.click();
-                        showToast(t.shareFallback);
+                        // إخفاء زر المشاركة إذا لم يكن مدعوماً (ويكتفي المستخدم بالتحميل أو الضغط المطول)
+                        shareBtn.style.display = 'none'; 
                     }
                 }, 'image/png');
 
             } catch (error) {
-                console.error("Error generating image:", error);
+                console.error("Capture Error:", error);
                 showToast(t.shareError);
             }
         }
@@ -586,7 +686,10 @@
                             <div class="watermark">🎓</div>
                             <div class="cert-header">
                                 <div class="school-info">
-                                    <h4>${t.gov}</h4><h4>${t.admin}</h4><h4>${t.school}</h4><h5>${t.stage}</h5>
+                                    <div>${t.gov}</div>
+                                    <div>${t.admin}</div>
+                                    <div>${t.school}</div>
+                                    <div>${t.stage}</div>
                                 </div>
                             </div>
                             <div class="cert-body">
@@ -627,7 +730,10 @@
                         <div class="watermark">🎓</div>
                         <div class="cert-header">
                             <div class="school-info">
-                                <h4>${t.gov}</h4><h4>${t.admin}</h4><h4>${t.school}</h4><h5>${t.stage}</h5>
+                                <div>${t.gov}</div>
+                                <div>${t.admin}</div>
+                                <div>${t.school}</div>
+                                <div>${t.stage}</div>
                             </div>
                             <div class="avatar-box">
                                 <img src="${s.img}" onerror="handleImgError(this)">
