@@ -389,7 +389,7 @@
     <!-- نافذة المشاركة المنبثقة -->
     <div id="share-modal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
-            <h2 id="modal-title-text" style="color: var(--primary); margin-bottom: 10px;">الشهادة جاهزة!</h2>
+            <h2 id="modal-title-text" style="color: var(--primary); margin-bottom: 10px;">الصورة جاهزة!</h2>
             <p id="modal-desc-text" style="font-size: 16px; color: #555; max-width: 400px; margin-bottom: 10px;">
                 يمكنك الضغط مطولاً على الصورة لحفظها أو مشاركتها مباشرة، أو استخدام الأزرار أدناه.
             </p>
@@ -437,7 +437,7 @@
                 shareSuccess: "تمت المشاركة بنجاح!",
                 shareError: "عذراً، حدث خطأ أثناء التجهيز.",
                 shareLoading: "جاري التقاط صورة عالية الدقة... ⏳",
-                disclaimer: "الصفحة لتكريم الطلاب المتميزين والطالب غير ملزم بطباعة الشهادة",
+                disclaimer: "الشهادة لتكريم الطلاب المتميزين والطالب غير ملزم بطباعة الشهادة",
                 modalTitle: "الصورة جاهزة بنجاح!",
                 modalDesc: "اضغط مطولاً (Long Press) على الصورة لحفظها أو مشاركتها بأمان، أو استخدم الأزرار.",
                 btnDownload: "تحميل الصورة",
@@ -463,7 +463,7 @@
                 gov: "Kafr El-Sheikh Governorate",
                 admin: "East Kafr El-Sheikh Educational Administration",
                 school: "El-Shaheed Naguib Mohie El-Shennawy School",
-                stage: "For Basic Education in Doqmeira",
+                stage: "For Basic Education in Daqmeira",
                 teacherLabel: "Subject Teacher",
                 teacherName: 'Dr. Mazen Fawzy Badawy 🎓',
                 principalLabel: "School Principal",
@@ -481,15 +481,23 @@
         };
 
         const students = [
-            // Class 1-2 (Hidden as requested, but kept in code)
-            { name: "رهف رضا جوهير محمد ابراهيم مرسي", enName: "Rahaf Reda Goweher Mohamed Ibrahim Morsi", gender: 'F', class: "فصل 1-2", enClass: "Class 1-2", img: "01.png", score: 15, hidden: true },
-            { name: "رودينا مجدي السيد بدير علي جاد الحق", enName: "Rodina Magdy El-Sayed Bedair Ali Gad El-Haq", gender: 'F', class: "فصل 1-2", enClass: "Class 1-2", img: "02.png", score: 15, hidden: true },
-            { name: "ريماس أحمد حامد حشيش", enName: "Remas Ahmed Hamed Hasheesh", gender: 'F', class: "فصل 1-2", enClass: "Class 1-2", img: "03.png", score: 15, hidden: true },
-            { name: "سلمى اسامه عبدالله فرج", enName: "Salma Osama Abdallah Farag", gender: 'F', class: "فصل 1-2", enClass: "Class 1-2", img: "04.png", score: 15, hidden: true },
-            { name: "سما اشرف رضا محمد غازي", enName: "Sama Ashraf Reda Mohamed Ghazy", gender: 'F', class: "فصل 1-2", enClass: "Class 1-2", img: "05.png", score: 15, hidden: true },
-            { name: "سهير ابراهيم الزكير ابراهيم الزكير", enName: "Sohair Ibrahim El-Zakir Ibrahim El-Zokair", gender: 'F', class: "فصل 1-2", enClass: "Class 1-2", img: "06.png", score: 15, hidden: true },
-            { name: "شهد ياسر عبد المتجلي احمد", enName: "Shahd Yasser Abdel-Motagally Ahmed", gender: 'F', class: "فصل 1-2", enClass: "Class 1-2", img: "07.png", score: 15, hidden: true },
-            { name: "مريم ابراهيم المعداوى عبد الحميد", enName: "Mariam Ibrahim El-Maadawy Abdel-Hamid", gender: 'F', class: "فصل 1-2", enClass: "Class 1-2", img: "08.png", score: 15, hidden: true },
+            // Class 1-2 (Now visible)
+            { name: "رهف رضا جوهير محمد ابراهيم مرسي", enName: "Rahaf Reda Goweher Mohamed Ibrahim Morsi", gender: 'F', class: "فصل 1-2", enClass: "Class 1-2", img: "01.png", score: 15 },
+            { name: "رودينا مجدي السيد بدير علي جاد الحق", enName: "Rodina Magdy El-Sayed Bedair Ali Gad El-Haq", gender: 'F', class: "فصل 1-2", enClass: "Class 1-2", img: "02.png", score: 15 },
+            { name: "ريماس أحمد حامد حشيش", enName: "Remas Ahmed Hamed Hasheesh", gender: 'F', class: "فصل 1-2", enClass: "Class 1-2", img: "03.png", score: 15 },
+            { name: "سلمى اسامه عبدالله فرج", enName: "Salma Osama Abdallah Farag", gender: 'F', class: "فصل 1-2", enClass: "Class 1-2", img: "04.png", score: 15 },
+            { name: "سما اشرف رضا محمد غازي", enName: "Sama Ashraf Reda Mohamed Ghazy", gender: 'F', class: "فصل 1-2", enClass: "Class 1-2", img: "05.png", score: 15 },
+            { name: "سهير ابراهيم الزكير ابراهيم الزكير", enName: "Sohair Ibrahim El-Zakir Ibrahim El-Zakair", gender: 'F', class: "فصل 1-2", enClass: "Class 1-2", img: "06.png", score: 15 },
+            { name: "شهد ياسر عبد المتجلي احمد", enName: "Shahd Yasser Abdel-Motagally Ahmed", gender: 'F', class: "فصل 1-2", enClass: "Class 1-2", img: "07.png", score: 15 },
+            { name: "مريم ابراهيم المعداوى عبد الحميد", enName: "Mariam Ibrahim El-Maadawy Abdel-Hamid", gender: 'F', class: "فصل 1-2", enClass: "Class 1-2", img: "08.png", score: 15 },
+            { name: "محمد احمد محمد عبد الفتاح محمد وافي", enName: "Mohamed Ahmed Mohamed Abdel-Fattah Mohamed Wafy", gender: 'M', class: "فصل 1-2", enClass: "Class 1-2", img: "26.png", score: 14 },
+            { name: "رهف رمضان السيد محمد", enName: "Rahaf Ramadan El-Sayed Mohamed", gender: 'F', class: "فصل 1-2", enClass: "Class 1-2", img: "27.png", score: 14 },
+            { name: "روان محمد ابراهيم عبد الجيد", enName: "Rawan Mohamed Ibrahim Abdel-Gayed", gender: 'F', class: "فصل 1-2", enClass: "Class 1-2", img: "28.png", score: 14 },
+            { name: "ريماس علي احمد علي العجماوي", enName: "Remas Ali Ahmed Ali El-Agmawy", gender: 'F', class: "فصل 1-2", enClass: "Class 1-2", img: "29.png", score: 14 },
+            { name: "ريماس محمد فتحي عبدالله احمد", enName: "Remas Mohamed Fathy Abdallah Ahmed", gender: 'F', class: "فصل 1-2", enClass: "Class 1-2", img: "30.png", score: 14 },
+            { name: "زينه علاء نعيم فرج", enName: "Zeina Alaa Naeem Farag", gender: 'F', class: "فصل 1-2", enClass: "Class 1-2", img: "31.png", score: 14 },
+            { name: "شهد محمد رشدي السعيد", enName: "Shahd Mohamed Roshdy El-Saeed", gender: 'F', class: "فصل 1-2", enClass: "Class 1-2", img: "32.png", score: 14 },
+            { name: "هاجر صالح ذكي عبدالله", enName: "Hagar Saleh Zaky Abdallah", gender: 'F', class: "فصل 1-2", enClass: "Class 1-2", img: "33.png", score: 14 },
             
             // Class 1-3 (Existing - Score 15)
             { name: "محمد عبد القادر ابراهيم محمد ابراهيم", enName: "Mohamed Abdel-Qader Ibrahim Mohamed Ibrahim", gender: 'M', class: "فصل 1-3", enClass: "Class 1-3", img: "01.png", score: 15 },
